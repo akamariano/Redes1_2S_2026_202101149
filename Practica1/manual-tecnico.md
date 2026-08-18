@@ -124,6 +124,39 @@ Ruta doble del Data Center: 31.8 × 2 = 63.6 metros.
 Total de cableado troncal requerido: 99.6 + 63.6 = 163.2 metros.
  
 Con bobinas estándar de 305 metros, 163.2 / 305 ≈ 0.53, por lo que se requiere 1 bobina completa para cubrir el cableado troncal del edificio, quedando un remanente aproximado de 141.8 metros disponible como reserva.
+ 
+### 5.2 Cableado horizontal (switch de departamento hacia cada host)
+ 
+Las distancias se estimaron ubicando el switch de cada departamento en una esquina de la sala, cercana al lado por donde sale el cableado troncal hacia el MDF, y midiendo la distancia Manhattan hacia el host más alejado dentro de esa misma sala, con un margen del 20% adicional.
+ 
+| Ambiente | Ancho (m) | Largo (m) | Ubicación del switch | Distancia máxima con margen 20% (m) |
+|---|---|---|---|---|
+| RRHH | 5 | 8 | Esquina superior derecha | 15.6 |
+| Sala de Capacitación | 5 | 8 | Esquina superior derecha | 15.6 |
+| Diseño e Innovación | 6 | 8 | Esquina superior derecha | 16.8 |
+| Backend | 6 | 8 | Esquina superior izquierda | 16.8 |
+| Dirección General | 7 | 6 | Esquina superior derecha | 15.6 |
+| Recepción | 12 | 6 | Esquina superior derecha | 21.6 |
+| Legal | 7 | 6 | Esquina superior derecha | 15.6 |
+| Data Center | 6 | 4 | Esquina superior derecha | 12.0 |
+ 
+Para estimar el material necesario se multiplicó la distancia máxima de cada departamento por su cantidad de hosts, asumiendo de forma conservadora que cada host requiere un tendido similar al del punto más alejado de la sala. Este criterio sobreestima levemente el material real, pero evita quedarse corto en la compra de cable.
+ 
+| Ambiente | Distancia máxima (m) | Hosts | Metros estimados |
+|---|---|---|---|
+| RRHH | 15.6 | 8 | 124.8 |
+| Sala de Capacitación | 15.6 | 10 | 156.0 |
+| Diseño e Innovación | 16.8 | 8 | 134.4 |
+| Backend | 16.8 | 7 | 117.6 |
+| Dirección General | 15.6 | 4 | 62.4 |
+| Recepción | 21.6 | 4 | 86.4 |
+| Legal | 15.6 | 4 | 62.4 |
+| Data Center | 12.0 | 3 | 36.0 |
+| **Total** | | | **780.0** |
+ 
+Con bobinas estándar de 305 metros, 780 / 305 ≈ 2.56, por lo que se requieren 3 bobinas completas para el cableado horizontal, con un remanente aproximado de 135 metros.
+ 
+Sumando el cableado troncal (1 bobina, sección 5.1) con el cableado horizontal (3 bobinas), el total de bobinas de cable UTP requeridas para todo el edificio es de 4 bobinas.
 
 ## 6. Dimensionamiento de patch panel y switch
 
