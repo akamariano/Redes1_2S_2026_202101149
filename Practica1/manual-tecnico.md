@@ -6,8 +6,21 @@ Curso: Redes de Computadoras 1, Segundo Semestre 2026
 Empresa del caso: QuetzalDev S.A.
 
 ## 1. Inventario de equipos
-
-Pendiente. Se detallará una vez definidas las topologías por departamento y el dimensionamiento del patch panel y del switch central.
+ 
+La distribución entre PC de escritorio y laptops se definió según la naturaleza del trabajo de cada departamento: se asignaron laptops a los departamentos con mayor necesidad de movilidad (Dirección General por reuniones, Diseño e Innovación por trabajo con clientes externos, Legal por gestiones y audiencias fuera de oficina, y Sala de Capacitación por la necesidad de reconfigurar el salón según cada capacitación), y PC de escritorio al resto de puestos fijos. La suma total respeta las 30 PC y 12 laptops indicadas en el enunciado.
+ 
+| Departamento | PC escritorio | Laptops | Servidores | Total hosts | Switch(es) | Categoría de cable |
+|---|---|---|---|---|---|---|
+| Recursos Humanos | 8 | 0 | 0 | 8 | 1 switch de 12 puertos | Cat6 |
+| Sala de Capacitación | 7 | 3 | 0 | 10 | 1 switch de 12 puertos | Cat6 |
+| Diseño e Innovación | 4 | 3 | 1 | 8 | 2 switches de 8 puertos (principal y QA) | Cat6 |
+| Backend | 6 | 0 | 1 | 7 | 1 switch de 12 puertos | Cat6 |
+| Dirección General | 0 | 4 | 0 | 4 | 1 switch de 8 puertos | Cat6 |
+| Recepción | 3 | 0 | 1 | 4 | 1 switch de 8 puertos | Cat6 |
+| Legal | 2 | 2 | 0 | 4 | 1 switch de 8 puertos | Cat6 |
+| Data Center | 0 | 0 | 3 | 3 | 1 switch de 8 puertos | Fibra óptica |
+| **Total** | **30** | **12** | **6** | **48** | | |
+ 
 
 ## 2. Ubicación del cuarto de telecomunicaciones (MDF)
 
@@ -95,8 +108,12 @@ Para el enlace troncal entre el MDF y el switch principal de Diseño e Innovaci�
 
 
 ## 4. Medio de transmisión
-
-Pendiente.
+ 
+El estándar TIA/EIA-568 limita cualquier segmento de cobre UTP a 100 metros totales (90 metros de cableado fijo más 10 metros de patch cords en ambos extremos). Dado que el edificio mide 26 por 16 metros, ninguna de las distancias calculadas en la sección 5 se acerca a ese límite, por lo que la selección de categoría de cable se basó en el ancho de banda requerido y en la criticidad de cada segmento, no en la distancia.
+ 
+Se seleccionó Cat6 para todos los segmentos de cableado horizontal y troncal de los siete departamentos sin criticidad especial (RRHH, Sala de Capacitación, Diseño e Innovación, Backend, Dirección General, Recepción y Legal). Cat6 soporta 1 Gbps garantizado en los 100 metros completos, suficiente para estaciones de trabajo y equipo de oficina estándar, y representa un costo menor frente a categorías superiores sin sacrificar el desempeño que estos segmentos requieren.
+ 
+Para el Data Center se seleccionó fibra óptica, tanto para el cableado horizontal hacia los tres servidores como para las dos rutas troncales redundantes hacia el switch central. La decisión se sustenta en tres factores. Primero, es el segmento que concentra el tráfico de los servidores principales hacia el resto del edificio, por lo que requiere mayor ancho de banda que cualquier otro segmento. Segundo, ya se había decidido una topología troncal redundante para este segmento por su criticidad, y la fibra es el medio estándar de la industria para backbones críticos con redundancia, al ofrecer mayor inmunidad a interferencia electromagnética que el cobre. Tercero, el sobrecosto de usar fibra se limita únicamente a este segmento, que es corto en comparación con el resto del cableado del edificio, por lo que el impacto en el presupuesto total es acotado frente al beneficio de contar con el segmento más crítico del edificio en el medio de mayor capacidad y confiabilidad disponible.
 
 ## 5. Distancias de cableado y cálculo de bobinas
  
@@ -159,35 +176,135 @@ Con bobinas estándar de 305 metros, 780 / 305 ≈ 2.56, por lo que se requieren
 Sumando el cableado troncal (1 bobina, sección 5.1) con el cableado horizontal (3 bobinas), el total de bobinas de cable UTP requeridas para todo el edificio es de 4 bobinas.
 
 ## 6. Dimensionamiento de patch panel y switch
-
-Pendiente.
+ 
+### 6.1 Patch panel
+ 
+El patch panel del MDF se dimensiona según el total de puntos de red del edificio, sumando los hosts de los ocho departamentos: 8 (RRHH) + 10 (Sala de Capacitación) + 8 (Diseño e Innovación) + 7 (Backend) + 4 (Dirección General) + 4 (Recepción) + 4 (Legal) + 3 (Data Center) = 48 puntos. Se seleccionó un patch panel estándar de 48 puertos, que cubre exactamente el total sin desperdicio de espacio en el rack.
+ 
+### 6.2 Switch central (MDF)
+ 
+El switch central debe tener un puerto por cada conexión troncal que llega al MDF. Siete de los ocho departamentos (RRHH, Sala de Capacitación, Diseño e Innovación, Backend, Dirección General, Recepción y Legal) ocupan un solo puerto cada uno, ya que el switch secundario de QA dentro de Diseño e Innovación se conecta a su propio switch principal departamental y no directo al MDF. El Data Center ocupa 2 puertos, por su enlace troncal redundante de dos rutas físicas separadas. El total de conexiones en el switch central es 7 + 2 = 9. Se seleccionó un switch central administrable de 16 puertos, dejando margen para escalabilidad futura.
+ 
+### 6.3 Switches de departamento
+ 
+Cada switch de departamento requiere un puerto por host conectado más los puertos de enlace troncal correspondientes (1 para la mayoría de departamentos, 2 para el Data Center por su redundancia, y 1 adicional en el switch principal de Diseño e Innovación para el enlace hacia su switch secundario de QA).
+ 
+| Ambiente | Hosts | Puertos requeridos | Switch seleccionado |
+|---|---|---|---|
+| RRHH | 8 | 9 (8 hosts + 1 troncal) | 12 puertos |
+| Sala de Capacitación | 10 | 11 (10 hosts + 1 troncal) | 12 puertos |
+| Diseño e Innovación (switch principal) | 6 | 8 (6 hosts + 1 troncal MDF + 1 enlace a switch QA) | 8 puertos |
+| Diseño e Innovación (switch QA) | 2 | 3 (2 hosts + 1 enlace al switch principal) | 8 puertos |
+| Backend | 7 | 8 (7 hosts + 1 troncal) | 12 puertos |
+| Dirección General | 4 | 5 (4 hosts + 1 troncal) | 8 puertos |
+| Recepción | 4 | 5 (4 hosts + 1 troncal) | 8 puertos |
+| Legal | 4 | 5 (4 hosts + 1 troncal) | 8 puertos |
+| Data Center | 3 | 5 (3 hosts + 2 troncal redundante) | 8 puertos |
+ 
+En RRHH, Sala de Capacitación y Backend se seleccionó un switch de 12 puertos en vez del mínimo ajustado, dejando margen de crecimiento sobre el cálculo exacto.
 
 ## 7. Canalización
-
-Pendiente.
-
+ 
+Se seleccionó escalerilla abierta (tipo charola) sobre cielo falso para todo el edificio, tanto para el cableado troncal como para el horizontal. Esta opción es más económica que la escalerilla cerrada o la tubería, y facilita la inspección y ampliación futura del cableado. Se descartó la escalerilla cerrada porque el edificio no presenta ambientes industriales ni fuentes significativas de interferencia electromagnética que justifiquen el costo adicional de un ducto cerrado.
+ 
 ## 8. Rack o gabinete para el MDF
-
-Pendiente.
-
+ 
+Se seleccionó un rack de pared de 12U para el MDF. El dimensionamiento se calculó sumando el espacio real que ocupa cada componente: el switch central administrable de 16 puertos ocupa 1U, el patch panel de 48 puertos ocupa 2U, se agregan organizadores de cable de 1U antes y después de cada componente activo (2U en total) para evitar enredos y mantener la ventilación, y 1U adicional para el PDU (regleta de energía del rack). Esto suma 6U de uso real, dejando los 6U restantes como margen de crecimiento, siguiendo la práctica de dejar entre 40% y 50% de espacio libre en un rack nuevo, ya que ampliar la capacidad después de instalado y cableado resulta mucho más costoso que dimensionarlo con margen desde el inicio.
+ 
 ## 9. Respaldo de energía (UPS)
-
-Pendiente.
+ 
+Se seleccionó un UPS de entre 650VA y 1000VA para el MDF. El consumo a respaldar corresponde principalmente al switch central (aproximadamente 30 a 60 watts para un modelo administrable de 16 puertos), por lo que ese rango de capacidad resulta holgado y ofrece varios minutos de autonomía, suficiente para un apagado controlado del equipo o para que el generador de respaldo del edificio, si existe, tome la carga.
 
 ## 10. Estándares T568A/T568B, straight-through y crossover
-
-Pendiente.
-
+ 
+Todos los enlaces del edificio, tanto el cableado horizontal (host hacia switch de departamento) como el cableado troncal (switch de departamento hacia switch central), se implementan con cables straight-through, es decir, con la misma disposición de pines en ambos extremos del cable. Esta decisión se sustenta en que, aunque tradicionalmente los enlaces switch-switch requerían cables crossover, el equipo de red actual cuenta con la función auto-MDI-X, que detecta automáticamente la polaridad del enlace y la ajusta sin necesidad de un cable crossover físico. El cable crossover se documenta únicamente como concepto de respaldo, para el caso hipotético de que se utilice equipo sin auto-MDI-X.
+ 
+Se seleccionó el estándar T568B para la asignación de colores en ambos extremos de todos los cables del edificio, por ser el más utilizado comercialmente y el más común en instalaciones actuales. Se mantiene consistencia total, usando T568B en ambos extremos de cada cable, ya que al no requerirse ningún enlace crossover en este diseño, no es necesario mezclar T568A con T568B en ningún cable.
+ 
 ## 11. Disposición de pines
+ 
+La siguiente tabla muestra la disposición de pines del estándar T568B, aplicada en ambos extremos de todos los cables straight-through del edificio.
+ 
+| Pin | Color |
+|---|---|
+| 1 | Blanco/Naranja |
+| 2 | Naranja |
+| 3 | Blanco/Verde |
+| 4 | Azul |
+| 5 | Blanco/Azul |
+| 6 | Verde |
+| 7 | Blanco/Café |
+| 8 | Café |
+Se utilizará el siguiente formato de etiquetado para todos los cables del edificio, tal como lo exige el enunciado de la práctica.
+ 
+Para el cableado horizontal: [Área/Departamento]-PR[Número de Punto de Red]. Ejemplos: RRHH-PR01 hasta RRHH-PR08, SalaCap-PR01 hasta SalaCap-PR10, DIN-PR01 hasta DIN-PR08 (Diseño e Innovación, incluyendo los 2 puntos del switch de QA dentro de la misma numeración departamental), Backend-PR01 hasta Backend-PR07, DirGeneral-PR01 hasta DirGeneral-PR04, Recepcion-PR01 hasta Recepcion-PR04, Legal-PR01 hasta Legal-PR04, y DataCenter-PR01 hasta DataCenter-PR03.
+ 
+Para el cableado troncal: MDF-[Área/Departamento]. Ejemplos: MDF-RRHH, MDF-SalaCap, MDF-DIN, MDF-Backend, MDF-DirGeneral, MDF-Recepcion, MDF-Legal, y las dos rutas redundantes del Data Center identificadas como MDF-DataCenter-A y MDF-DataCenter-B. El enlace interno entre el switch principal y el switch de QA de Diseño e Innovación se etiqueta como DIN-DIN-QA.
+## 12. Tipo de toma de red y etiquetado de cableado
+ 
+Todos los puntos de red del edificio se implementan con toma unitaria (un solo puerto por toma), ya que el diseño asigna una corrida de cable dedicada e independiente a cada host, servidor o punto de conexión, sin compartir una misma toma entre dos o más dispositivos. No se requieren tomas dobles, triples ni de N puertos en ningún ambiente, dado que ningún punto de la red concentra más de un dispositivo físico en una sola salida.
+ 
+Se utilizará el siguiente formato de etiquetado para todos los cables del edificio, tal como lo exige el enunciado de la práctica.
+ 
+Para el cableado horizontal: [Área/Departamento]-PR[Número de Punto de Red]. Ejemplos: RRHH-PR01 hasta RRHH-PR08, SalaCap-PR01 hasta SalaCap-PR10, DIN-PR01 hasta DIN-PR08 (Diseño e Innovación, incluyendo los 2 puntos del switch de QA dentro de la misma numeración departamental), Backend-PR01 hasta Backend-PR07, DirGeneral-PR01 hasta DirGeneral-PR04, Recepcion-PR01 hasta Recepcion-PR04, Legal-PR01 hasta Legal-PR04, y DataCenter-PR01 hasta DataCenter-PR03.
+ 
+Para el cableado troncal: MDF-[Área/Departamento]. Ejemplos: MDF-RRHH, MDF-SalaCap, MDF-DIN, MDF-Backend, MDF-DirGeneral, MDF-Recepcion, MDF-Legal, y las dos rutas redundantes del Data Center identificadas como MDF-DataCenter-A y MDF-DataCenter-B. El enlace interno entre el switch principal y el switch de QA de Diseño e Innovación se etiqueta como DIN-DIN-QA.
+ 
+### Comparación con el estándar TIA/EIA-606
+ 
+El estándar ANSI/TIA-606 (Administration Standard for Telecommunications Infrastructure) regula la administración de la infraestructura de telecomunicaciones, definiendo cómo deben asignarse identificadores y etiquetas a los elementos físicos del sistema de cableado para garantizar una documentación clara y una gestión eficiente de la red a lo largo del tiempo. A diferencia de estándares como el 568, que definen desempeño eléctrico, el 606 se enfoca exclusivamente en identificación, etiquetado y registro de la infraestructura<cite index="4-1">, definiendo cómo se asignan identificadores y etiquetas a los elementos físicos de un sistema de cableado estructurado para respaldar una documentación clara y una gestión de red eficiente.</cite>
+ 
+Existen al menos dos diferencias concretas entre el esquema simplificado usado en esta práctica y lo que exige formalmente el estándar. Primero, el 606 no se limita a etiquetar cables, sino que exige identificadores únicos para todos los elementos de la infraestructura, incluyendo los puertos del patch panel, los cuartos de telecomunicaciones, las rutas o canalizaciones, y los elementos de puesta a tierra, mientras que el esquema de esta práctica etiqueta únicamente los cables y no genera identificadores independientes para el resto de componentes. Segundo, <cite index="4-1">el estándar recomienda, como buena práctica, el uso de codificación por colores en las etiquetas o en los cables, aunque no es un requisito obligatorio en sus versiones más recientes</cite>, mientras que el esquema de esta práctica se basa únicamente en nomenclatura de texto, sin codificación por colores. Además, <cite index="3-1">aunque el formato exacto de los identificadores no está impuesto por el estándar, este sí exige que el formato elegido sea consistente y que asigne un número identificador único a cada elemento del sistema</cite>, respaldado por un sistema formal de registros y reportes, algo que el esquema de dos partes (Departamento-PR## y MDF-Departamento) de esta práctica no contempla.
+ 
+En un entorno real, como un cuarto de telecomunicaciones o un data center en producción, se optaría por implementar el estándar completo en lugar de un esquema simplificado como el de esta práctica, porque la cantidad de elementos a rastrear crece muy por encima de lo manejable con una simple convención de nombres: múltiples técnicos y contratistas distintos intervienen la infraestructura a lo largo de los años, se agregan y remueven equipos constantemente, y sin un sistema formal de identificadores únicos y registros para cada componente (no solo los cables, sino también puertos, rutas y espacios), resulta mucho más lento y propenso a errores localizar un elemento específico o diagnosticar una falla, justo el problema que el estándar 606 busca resolver mediante trazabilidad completa de la infraestructura.
+ 
+### Comparación con el estándar TIA/EIA-606
+ 
+El estándar ANSI/TIA-606 (Administration Standard for Telecommunications Infrastructure) regula la administración de la infraestructura de telecomunicaciones, definiendo cómo deben asignarse identificadores y etiquetas a los elementos físicos del sistema de cableado para garantizar una documentación clara y una gestión eficiente de la red a lo largo del tiempo. A diferencia de estándares como el 568, que definen desempeño eléctrico, el 606 se enfoca exclusivamente en identificación, etiquetado y registro de la infraestructura<cite index="4-1">, definiendo cómo se asignan identificadores y etiquetas a los elementos físicos de un sistema de cableado estructurado para respaldar una documentación clara y una gestión de red eficiente.</cite>
+ 
+Existen al menos dos diferencias concretas entre el esquema simplificado usado en esta práctica y lo que exige formalmente el estándar. Primero, el 606 no se limita a etiquetar cables, sino que exige identificadores únicos para todos los elementos de la infraestructura, incluyendo los puertos del patch panel, los cuartos de telecomunicaciones, las rutas o canalizaciones, y los elementos de puesta a tierra, mientras que el esquema de esta práctica etiqueta únicamente los cables y no genera identificadores independientes para el resto de componentes. Segundo, <cite index="4-1">el estándar recomienda, como buena práctica, el uso de codificación por colores en las etiquetas o en los cables, aunque no es un requisito obligatorio en sus versiones más recientes</cite>, mientras que el esquema de esta práctica se basa únicamente en nomenclatura de texto, sin codificación por colores. Además, <cite index="3-1">aunque el formato exacto de los identificadores no está impuesto por el estándar, este sí exige que el formato elegido sea consistente y que asigne un número identificador único a cada elemento del sistema</cite>, respaldado por un sistema formal de registros y reportes, algo que el esquema de dos partes (Departamento-PR## y MDF-Departamento) de esta práctica no contempla.
+ 
+En un entorno real, como un cuarto de telecomunicaciones o un data center en producción, se optaría por implementar el estándar completo en lugar de un esquema simplificado como el de esta práctica, porque la cantidad de elementos a rastrear crece muy por encima de lo manejable con una simple convención de nombres: múltiples técnicos y contratistas distintos intervienen la infraestructura a lo largo de los años, se agregan y remueven equipos constantemente, y sin un sistema formal de identificadores únicos y registros para cada componente (no solo los cables, sino también puertos, rutas y espacios), resulta mucho más lento y propenso a errores localizar un elemento específico o diagnosticar una falla, justo el problema que el estándar 606 busca resolver mediante trazabilidad completa de la infraestructura.
 
-Pendiente.
-
-## 12. Etiquetado de cableado y comparación con TIA/EIA-606
-
-Pendiente.
 
 ## 13. Flujo de conexión end-to-end
-
-Pendiente.
-
+ 
+El enunciado exige documentar el flujo completo de al menos un dispositivo final. A continuación se documentan dos casos representativos, uno de un segmento estándar y otro del segmento crítico con redundancia, para ilustrar ambos escenarios de la red.
+ 
+### Caso 1, estación de trabajo en Backend
+ 
+1. La estación de trabajo transmite la señal desde su tarjeta de red (NIC).
+2. La señal viaja por el cable de cableado horizontal Cat6, etiquetado como Backend-PR01, tendido por escalerilla abierta desde la estación hasta el switch del departamento.
+3. La señal llega a un puerto del switch de Backend (switch de 12 puertos).
+4. El switch de Backend reenvía la señal por el cable troncal Cat6, etiquetado como MDF-Backend, también por escalerilla abierta, hacia el switch central.
+5. La señal llega a un puerto del switch central de 16 puertos, ubicado en el rack de 12U del MDF.
+6. Desde el switch central, la señal pasa al patch panel de 48 puertos del MDF, que la deja disponible para su salida hacia el resto de la red del edificio o hacia el proveedor de servicio de internet, según la topología de conexión externa definida por la empresa.
+### Caso 2, servidor en Data Center (segmento con redundancia)
+ 
+1. El servidor transmite la señal desde su tarjeta de red (NIC).
+2. La señal viaja por cable de fibra óptica horizontal, etiquetado como DataCenter-PR01, hasta el switch del Data Center.
+3. La señal llega a un puerto del switch del Data Center (switch de 8 puertos).
+4. El switch del Data Center reenvía la señal simultáneamente por dos rutas de fibra óptica troncal físicamente separadas, etiquetadas como MDF-DataCenter-A y MDF-DataCenter-B, cada una por su propia canalización, hacia el switch central.
+5. Ambas rutas llegan a puertos independientes del switch central de 16 puertos en el MDF. Si una de las dos rutas falla (corte de cable, falla de puerto), la segunda ruta mantiene la conectividad del Data Center sin interrupción del servicio.
+6. Desde el switch central, la señal pasa al patch panel de 48 puertos del MDF, y de ahí hacia el resto de la red del edificio o hacia el proveedor de servicio de internet.
+La diferencia clave entre ambos casos es que el segmento de Backend depende de una única ruta física en cada tramo (horizontal y troncal), mientras que el segmento del Data Center cuenta con redundancia física completa en el tramo troncal, coherente con la decisión tomada en la sección 3 de dar tratamiento especial de alta disponibilidad al segmento que aloja los servidores principales del edificio.
 ## 14. Presupuesto estimado
+ 
+A continuación se presenta el presupuesto estimado de materiales, con precios referenciales del mercado local de Guatemala en quetzales, y sus fuentes de referencia.
+ 
+| Rubro | Cantidad | Precio unitario | Precio total | Referencia |
+|---|---|---|---|---|
+| Cable UTP Cat6, bobina de 305m (segmento horizontal y troncal) | 3 bobinas | Q 704.00 | Q 2,112.00 | Kemik Guatemala |
+| Fibra óptica multimodo OM3, por metro (segmento Data Center) | ~30 m | Q 16.28 | Q 488.40 | Chipcom Guatemala |
+| Patch panel Cat6 de 48 puertos | 1 ud. | Q 622.00 | Q 622.00 | Kemik Guatemala |
+| Switch central Gigabit de 16 puertos | 1 ud. | Q 615.00 | Q 615.00 | Mivoot Guatemala |
+| Switches de departamento, 12 puertos Gigabit | 3 uds. | Q 535.00 | Q 1,605.00 | Mivoot Guatemala |
+| Switches de departamento, 8 puertos Gigabit (4 de departamento + 2 de Diseño e Innovación) | 6 uds. | Q 295.00 | Q 1,770.00 | Mivoot Guatemala |
+| Rack de pared de 12U | 1 ud. | Q 1,905.60 | Q 1,905.60 | Conectividad Guatemala |
+| UPS de 650VA a 1000VA | 1 ud. | Q 567.00 | Q 567.00 | Walmart Guatemala |
+| Conectores RJ45 Cat6, bolsa de 100 unidades | 1 bolsa | Q 265.00 | Q 265.00 | Llego Store Guatemala |
+| Escalerilla abierta / charola malla, tramo de 3m | ~5 tramos (15 m) | Q 349.58 | Q 1,747.90 | Chipcom Guatemala |
+ 
+Costo total aproximado en materiales: Q 11,697.90 (impuestos incluidos en la mayoría de los distribuidores locales consultados).
+ 
+Consideraciones adicionales sobre el presupuesto. Para la fibra óptica del Data Center se presupuestaron 30 metros de fibra multimodo OM3, cantidad que cubre el tramo corto de este segmento; adicionalmente se requerirán conectores LC o SC y su respectivo patch cord o acoplador en un patch panel de fibra dedicado, no incluidos en el desglose anterior. Para la escalerilla se estimaron 5 tramos de 3 metros (15 metros en total) de charola tipo malla de 54 por 100 milímetros, cantidad que representa la ruta principal compartida por donde corren agrupados los cables hacia cada departamento, y no la suma de las longitudes individuales de cada cable, ya que múltiples cables viajan juntos dentro de la misma canalización; esta cantidad deberá confirmarse contra el recorrido real una vez trazado el diagrama final. Una bolsa de 100 conectores RJ45 cubre los extremos necesarios para el parcheo de las redes horizontal y troncal de cobre del edificio.
