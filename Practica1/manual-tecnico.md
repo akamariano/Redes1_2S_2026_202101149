@@ -7,7 +7,7 @@ Empresa del caso: QuetzalDev S.A.
 
 ## 1. Inventario de equipos
  
-La distribución entre PC de escritorio y laptops se definió según la naturaleza del trabajo de cada departamento: se asignaron laptops a los departamentos con mayor necesidad de movilidad (Dirección General por reuniones, Diseño e Innovación por trabajo con clientes externos, Legal por gestiones y audiencias fuera de oficina, y Sala de Capacitación por la necesidad de reconfigurar el salón según cada capacitación), y PC de escritorio al resto de puestos fijos. La suma total respeta las 30 PC y 12 laptops indicadas en el enunciado.
+La distribución de PC y laptops se definió según el tipo de trabajo de cada departamento. Se asignaron laptops a las áreas que necesitan movilidad: Dirección General, Diseño e Innovación, Legal y Sala de Capacitación. En los puestos fijos se asignaron PC de escritorio. En total se tienen las 30 PC y 12 laptops indicadas en el enunciado.
  
 | Departamento | PC escritorio | Laptops | Servidores | Total hosts | Switch(es) | Categoría de cable |
 |---|---|---|---|---|---|---|
@@ -21,17 +21,26 @@ La distribución entre PC de escritorio y laptops se definió según la naturale
 | Data Center | 0 | 0 | 3 | 3 | 1 switch de 8 puertos | Fibra óptica |
 | **Total** | **30** | **12** | **6** | **48** | | |
  
+### Equipo activo consolidado
 
+| Elemento | Cantidad | Especificación |
+|---|---|---|
+| Patch panel | 1 | 48 puertos, Cat6 |
+| Switch central (MDF) | 1 | 16 puertos administrable |
+| Switches de departamento | 9 | 3 de 12 puertos, 6 de 8 puertos (incluye principal y QA de Diseño e Innovación) |
+| Rack | 1 | Rack de pared de 12U |
+| UPS | 1 | 650VA a 1000VA |
+| ODF (organizador de fibra) | 1 | Instalado en el rack del MDF, para terminar las rutas de fibra óptica del Data Center |
 ## 2. Ubicación del cuarto de telecomunicaciones (MDF)
 
-Para ubicar el MDF se calculó el centroide ponderado del edificio, tomando como peso la cantidad de hosts de cada departamento. Este método corresponde al mismo principio del centro de masa en física, donde cada departamento actúa como un punto con una posición (x, y) sobre el plano y un peso equivalente a su cantidad de equipos. El departamento con más hosts atrae el punto resultante con más fuerza que uno con pocos hosts, de manera que el MDF queda ubicado en el punto que minimiza la distancia ponderada promedio hacia todos los puntos de red del edificio, en lugar de simplemente ubicarse en el centro geométrico del edificio.
+Para ubicar el MDF se calculó el centroide ponderado del edificio. En este cálculo, cada departamento tiene una posición (x, y) y un peso igual a su cantidad de hosts. Por eso, los departamentos con más equipos influyen más en la ubicación final. Así se obtiene un punto más útil que el centro geométrico, porque considera la distribución real de los equipos.
 
 La fórmula utilizada fue la siguiente.
 
 x_MDF = Σ(hosts_i × x_i) / Σhosts_i
 y_MDF = Σ(hosts_i × y_i) / Σhosts_i
 
-Las coordenadas se tomaron con origen (0,0) en la esquina inferior izquierda del edificio, con el eje x corriendo de 0 a 26 metros y el eje y de 0 a 16 metros para el edificio principal. Para el Data Center, ubicado fuera de la franja principal y conectado mediante el Corredor Secundario de 1.5 metros de ancho, se estimó su centro en x igual a 26 más 1.5 más la mitad de su ancho de 6 metros, dando como resultado x igual a 30.5.
+Las coordenadas tienen su origen (0,0) en la esquina inferior izquierda del edificio. El edificio principal mide 26 metros en el eje x y 16 metros en el eje y. El Data Center está fuera de esta área y se conecta por un corredor secundario de 1.5 metros. Por eso, su centro se calculó en x = 30.5.
 
 | Ambiente | x | y | Hosts | Cx (x × hosts) | Cy (y × hosts) |
 |---|---|---|---|---|---|
@@ -49,7 +58,7 @@ x_MDF = 639.5 / 48 ≈ 13.32
 y_MDF = 330 / 48 ≈ 6.88
 URL CÁLCULOS: https://ingenieriausacedu-my.sharepoint.com/:x:/g/personal/3530110610101_ingenieria_usac_edu_gt/IQAJAMek7jhgT6Hr3Tu61K0aAfKd5wrboL2uypH5l7NK5yY?e=tSEymB
 
-El punto resultante (13.32, 6.88) cae dentro del área del Vestíbulo de Ingreso, muy cerca de su borde superior con el Hall Central. Esta zona resulta viable como cuarto de telecomunicaciones porque es un espacio físico real y no un punto en el aire, permite el acceso directo tanto al cableado hacia los departamentos de la fila inferior como hacia los de la fila superior a través del Hall Central, y no interrumpe la circulación principal de ingreso si se ubica contra una pared lateral. Se descartó el Hall Central como ubicación alternativa, a pesar de estar geométricamente aún más cerca del centroide, porque es un pasillo de 2 metros de ancho sin espacio cerrado para instalar un rack o gabinete.
+El punto resultante (13.32, 6.88) cae dentro del Vestíbulo de Ingreso, cerca del borde que limita con el Hall Central. Esta ubicación es adecuada porque existe un espacio físico para instalar el rack y permite llegar al cableado de las áreas superiores e inferiores. El rack se puede colocar contra una pared lateral sin bloquear la entrada. Se descartó el Hall Central porque es un pasillo de 2 metros de ancho y no tiene un espacio cerrado para instalar el equipo.
 
 Con base en este análisis, el MDF se ubicará en la esquina superior izquierda del Vestíbulo de Ingreso, es decir, del lado hacia donde se abre la puerta de acceso a dicho vestíbulo, quedando pegado al límite con el Hall Central.
 
@@ -57,21 +66,21 @@ Con base en este análisis, el MDF se ubicará en la esquina superior izquierda 
 
 ### Data Center
 
-El Data Center concentra los tres servidores principales del edificio, por lo que representa el segmento de mayor criticidad de toda la red, dado que una falla en su conexión afectaría de forma simultánea a los tres servidores centrales. Internamente, entre el switch del Data Center y sus tres servidores, se utilizará una topología en estrella simple, ya que con tan pocos hosts cualquier topología más compleja no se justifica en términos de costo.
+El Data Center concentra los tres servidores principales del edificio, por lo que es el segmento más importante de la red. Una falla en su conexión afectaría a los tres servidores. Entre el switch del Data Center y los servidores se usará una topología en estrella simple, porque hay pocos hosts y una solución más compleja no se justifica.
 
 Para el enlace troncal entre el MDF y el switch del Data Center se evaluará una topología con redundancia, mediante dos rutas de cableado físicamente separadas hacia el mismo switch, dado el nivel de criticidad de este segmento frente al resto del edificio.
 
-Se decidió un enlace troncal redundante para el Data Center, mediante dos rutas de cableado físicamente separadas hacia el mismo switch. A diferencia de Backend y Recepción, donde el servidor departamental afecta únicamente a ese departamento si falla, el Data Center aloja los tres servidores principales del edificio, es decir, infraestructura compartida por toda la empresa. El costo adicional de una segunda ruta de cable es marginal frente al riesgo de que una falla en un solo cable o puerto deje sin acceso a los servidores centrales a la totalidad de QuetzalDev S.A., por lo que la relación costo-beneficio favorece la redundancia en este segmento específico.
+Se decidió usar un enlace troncal redundante para el Data Center, con dos rutas de cableado separadas hacia el mismo switch. En Backend y Recepción, una falla afecta principalmente a un solo departamento. En cambio, el Data Center contiene servidores que utiliza toda la empresa. El costo de agregar una segunda ruta es menor que el riesgo de perder el acceso a todos los servidores por una falla en un cable o puerto.
 ### Backend
 
-El Departamento de Backend aloja 6 estaciones de desarrollo y 1 servidor, 7 hosts en total. A diferencia del Data Center, donde todos los hosts son servidores, aquí la mayoría son estaciones de trabajo normales, por lo que la criticidad del segmento completo es menor. Internamente, entre el switch de Backend y sus 7 hosts, se utilizará una topología en estrella simple, ya que la cantidad de hosts no justifica dividir el switch en más de un grupo.
+Backend tiene 6 estaciones de desarrollo y 1 servidor, para un total de 7 hosts. Como la mayoría son estaciones de trabajo, el segmento es menos crítico que el Data Center. Se usará una topología en estrella simple porque un solo switch puede atender todos los hosts.
 
-Para el enlace troncal entre el MDF y el switch de Backend se utilizará un enlace simple sin redundancia, dado que solo uno de los 7 hosts del segmento es un servidor, y el resto son estaciones reemplazables sin un impacto crítico en la operación del edificio si llegara a fallar temporalmente la conexión. Esta decisión prioriza el costo sobre la tolerancia a fallos, a diferencia del Data Center donde los tres hosts conectados son servidores.
+El enlace entre el MDF y Backend será simple y no tendrá redundancia. Solo uno de sus siete hosts es un servidor y las demás estaciones pueden reemplazarse. En este caso se prioriza el costo sobre la tolerancia a fallos.
 ### Recepción
  
-El Departamento de Recepción aloja 3 estaciones de trabajo y 1 servidor, 4 hosts en total. Al igual que Backend, la mayoría de los hosts son estaciones reemplazables y solo uno es un servidor, por lo que se aplica el mismo criterio. Internamente, entre el switch de Recepción y sus 4 hosts, se utilizará una topología en estrella simple, dado el bajo número de hosts.
+Recepción tiene 3 estaciones de trabajo y 1 servidor, para un total de 4 hosts. Como solo uno es servidor, se aplica el mismo criterio que en Backend. Se usará una topología en estrella simple porque hay pocos hosts.
  
-Para el enlace troncal entre el MDF y el switch de Recepción se utilizará un enlace simple sin redundancia, siguiendo la misma lógica aplicada en Backend, priorizando el costo dado que el impacto de una falla temporal en este segmento es bajo.
+El enlace entre el MDF y Recepción será simple y no tendrá redundancia. El impacto de una falla temporal sería bajo, por lo que se prioriza el costo.
  
 ### Recursos Humanos
  
@@ -235,36 +244,34 @@ La siguiente tabla muestra la disposición de pines del estándar T568B, aplicad
 | 6 | Verde |
 | 7 | Blanco/Café |
 | 8 | Café |
-Se utilizará el siguiente formato de etiquetado para todos los cables del edificio, tal como lo exige el enunciado de la práctica.
- 
-Para el cableado horizontal: [Área/Departamento]-PR[Número de Punto de Red]. Ejemplos: RRHH-PR01 hasta RRHH-PR08, SalaCap-PR01 hasta SalaCap-PR10, DIN-PR01 hasta DIN-PR08 (Diseño e Innovación, incluyendo los 2 puntos del switch de QA dentro de la misma numeración departamental), Backend-PR01 hasta Backend-PR07, DirGeneral-PR01 hasta DirGeneral-PR04, Recepcion-PR01 hasta Recepcion-PR04, Legal-PR01 hasta Legal-PR04, y DataCenter-PR01 hasta DataCenter-PR03.
- 
-Para el cableado troncal: MDF-[Área/Departamento]. Ejemplos: MDF-RRHH, MDF-SalaCap, MDF-DIN, MDF-Backend, MDF-DirGeneral, MDF-Recepcion, MDF-Legal, y las dos rutas redundantes del Data Center identificadas como MDF-DataCenter-A y MDF-DataCenter-B. El enlace interno entre el switch principal y el switch de QA de Diseño e Innovación se etiqueta como DIN-DIN-QA.
+
+Como evidencia de comprensión de la disposición de pines para el caso de un cable crossover, aunque el diseño de este edificio no requiere ninguno, se documenta a continuación el pinout correspondiente, con T568B en un extremo y T568A en el otro, que es la combinación que definiría un cable crossover si en algún momento se necesitara conectar dos switches sin auto-MDI-X.
+
+| Pin | Extremo A (T568B) | Extremo B (T568A) |
+|---|---|---|
+| 1 | Blanco/Naranja | Blanco/Verde |
+| 2 | Naranja | Verde |
+| 3 | Blanco/Verde | Blanco/Naranja |
+| 4 | Azul | Azul |
+| 5 | Blanco/Azul | Blanco/Azul |
+| 6 | Verde | Naranja |
+| 7 | Blanco/Café | Blanco/Café |
+| 8 | Café | Café |
 ## 12. Tipo de toma de red y etiquetado de cableado
  
 Todos los puntos de red del edificio se implementan con toma unitaria (un solo puerto por toma), ya que el diseño asigna una corrida de cable dedicada e independiente a cada host, servidor o punto de conexión, sin compartir una misma toma entre dos o más dispositivos. No se requieren tomas dobles, triples ni de N puertos en ningún ambiente, dado que ningún punto de la red concentra más de un dispositivo físico en una sola salida.
  
 Se utilizará el siguiente formato de etiquetado para todos los cables del edificio, tal como lo exige el enunciado de la práctica.
  
-Para el cableado horizontal: [Área/Departamento]-PR[Número de Punto de Red]. Ejemplos: RRHH-PR01 hasta RRHH-PR08, SalaCap-PR01 hasta SalaCap-PR10, DIN-PR01 hasta DIN-PR08 (Diseño e Innovación, incluyendo los 2 puntos del switch de QA dentro de la misma numeración departamental), Backend-PR01 hasta Backend-PR07, DirGeneral-PR01 hasta DirGeneral-PR04, Recepcion-PR01 hasta Recepcion-PR04, Legal-PR01 hasta Legal-PR04, y DataCenter-PR01 hasta DataCenter-PR03.
+Para el cableado horizontal se usará el formato `[Área/Departamento]-PR[Número de Punto de Red]`. Ejemplos: RRHH-PR01 a RRHH-PR08, SalaCap-PR01 a SalaCap-PR10, DIN-PR01 a DIN-PR08, Backend-PR01 a Backend-PR07, DirGeneral-PR01 a DirGeneral-PR04, Recepcion-PR01 a Recepcion-PR04, Legal-PR01 a Legal-PR04 y DataCenter-PR01 a DataCenter-PR03. Los dos puntos del switch de QA se incluyen en la numeración de Diseño e Innovación.
  
-Para el cableado troncal: MDF-[Área/Departamento]. Ejemplos: MDF-RRHH, MDF-SalaCap, MDF-DIN, MDF-Backend, MDF-DirGeneral, MDF-Recepcion, MDF-Legal, y las dos rutas redundantes del Data Center identificadas como MDF-DataCenter-A y MDF-DataCenter-B. El enlace interno entre el switch principal y el switch de QA de Diseño e Innovación se etiqueta como DIN-DIN-QA.
- 
-### Comparación con el estándar TIA/EIA-606
- 
-El estándar ANSI/TIA-606 (Administration Standard for Telecommunications Infrastructure) regula la administración de la infraestructura de telecomunicaciones, definiendo cómo deben asignarse identificadores y etiquetas a los elementos físicos del sistema de cableado para garantizar una documentación clara y una gestión eficiente de la red a lo largo del tiempo. A diferencia de estándares como el 568, que definen desempeño eléctrico, el 606 se enfoca exclusivamente en identificación, etiquetado y registro de la infraestructura<cite index="4-1">, definiendo cómo se asignan identificadores y etiquetas a los elementos físicos de un sistema de cableado estructurado para respaldar una documentación clara y una gestión de red eficiente.</cite>
- 
-Existen al menos dos diferencias concretas entre el esquema simplificado usado en esta práctica y lo que exige formalmente el estándar. Primero, el 606 no se limita a etiquetar cables, sino que exige identificadores únicos para todos los elementos de la infraestructura, incluyendo los puertos del patch panel, los cuartos de telecomunicaciones, las rutas o canalizaciones, y los elementos de puesta a tierra, mientras que el esquema de esta práctica etiqueta únicamente los cables y no genera identificadores independientes para el resto de componentes. Segundo, <cite index="4-1">el estándar recomienda, como buena práctica, el uso de codificación por colores en las etiquetas o en los cables, aunque no es un requisito obligatorio en sus versiones más recientes</cite>, mientras que el esquema de esta práctica se basa únicamente en nomenclatura de texto, sin codificación por colores. Además, <cite index="3-1">aunque el formato exacto de los identificadores no está impuesto por el estándar, este sí exige que el formato elegido sea consistente y que asigne un número identificador único a cada elemento del sistema</cite>, respaldado por un sistema formal de registros y reportes, algo que el esquema de dos partes (Departamento-PR## y MDF-Departamento) de esta práctica no contempla.
- 
-En un entorno real, como un cuarto de telecomunicaciones o un data center en producción, se optaría por implementar el estándar completo en lugar de un esquema simplificado como el de esta práctica, porque la cantidad de elementos a rastrear crece muy por encima de lo manejable con una simple convención de nombres: múltiples técnicos y contratistas distintos intervienen la infraestructura a lo largo de los años, se agregan y remueven equipos constantemente, y sin un sistema formal de identificadores únicos y registros para cada componente (no solo los cables, sino también puertos, rutas y espacios), resulta mucho más lento y propenso a errores localizar un elemento específico o diagnosticar una falla, justo el problema que el estándar 606 busca resolver mediante trazabilidad completa de la infraestructura.
+Para el cableado troncal se usará el formato `MDF-[Área/Departamento]`. Ejemplos: MDF-RRHH, MDF-SalaCap, MDF-DIN, MDF-Backend, MDF-DirGeneral, MDF-Recepcion y MDF-Legal. Las rutas del Data Center se identificarán como MDF-DataCenter-A y MDF-DataCenter-B. El enlace entre los switches de Diseño e Innovación se etiquetará como DIN-DIN-QA.
  
 ### Comparación con el estándar TIA/EIA-606
- 
-El estándar ANSI/TIA-606 (Administration Standard for Telecommunications Infrastructure) regula la administración de la infraestructura de telecomunicaciones, definiendo cómo deben asignarse identificadores y etiquetas a los elementos físicos del sistema de cableado para garantizar una documentación clara y una gestión eficiente de la red a lo largo del tiempo. A diferencia de estándares como el 568, que definen desempeño eléctrico, el 606 se enfoca exclusivamente en identificación, etiquetado y registro de la infraestructura<cite index="4-1">, definiendo cómo se asignan identificadores y etiquetas a los elementos físicos de un sistema de cableado estructurado para respaldar una documentación clara y una gestión de red eficiente.</cite>
- 
-Existen al menos dos diferencias concretas entre el esquema simplificado usado en esta práctica y lo que exige formalmente el estándar. Primero, el 606 no se limita a etiquetar cables, sino que exige identificadores únicos para todos los elementos de la infraestructura, incluyendo los puertos del patch panel, los cuartos de telecomunicaciones, las rutas o canalizaciones, y los elementos de puesta a tierra, mientras que el esquema de esta práctica etiqueta únicamente los cables y no genera identificadores independientes para el resto de componentes. Segundo, <cite index="4-1">el estándar recomienda, como buena práctica, el uso de codificación por colores en las etiquetas o en los cables, aunque no es un requisito obligatorio en sus versiones más recientes</cite>, mientras que el esquema de esta práctica se basa únicamente en nomenclatura de texto, sin codificación por colores. Además, <cite index="3-1">aunque el formato exacto de los identificadores no está impuesto por el estándar, este sí exige que el formato elegido sea consistente y que asigne un número identificador único a cada elemento del sistema</cite>, respaldado por un sistema formal de registros y reportes, algo que el esquema de dos partes (Departamento-PR## y MDF-Departamento) de esta práctica no contempla.
- 
-En un entorno real, como un cuarto de telecomunicaciones o un data center en producción, se optaría por implementar el estándar completo en lugar de un esquema simplificado como el de esta práctica, porque la cantidad de elementos a rastrear crece muy por encima de lo manejable con una simple convención de nombres: múltiples técnicos y contratistas distintos intervienen la infraestructura a lo largo de los años, se agregan y remueven equipos constantemente, y sin un sistema formal de identificadores únicos y registros para cada componente (no solo los cables, sino también puertos, rutas y espacios), resulta mucho más lento y propenso a errores localizar un elemento específico o diagnosticar una falla, justo el problema que el estándar 606 busca resolver mediante trazabilidad completa de la infraestructura.
+
+El estándar ANSI/TIA-606 define cómo identificar y registrar los elementos de una red de telecomunicaciones. A diferencia del TIA/EIA-568, que se enfoca en el desempeño del cableado, el 606 se enfoca en la identificación, el etiquetado y el registro de la infraestructura.
+
+En esta práctica solo se etiquetan los cables. El estándar 606 también pide identificadores únicos para los puertos del patch panel, los cuartos de telecomunicaciones, las canalizaciones y el sistema de puesta a tierra. Además, recomienda usar colores como apoyo visual y mantener un registro formal de todos los elementos. En un entorno real se usaría el estándar completo, porque facilita encontrar equipos y resolver fallas cuando participan varios técnicos y la red cambia con el tiempo.
 
 
 ## 13. Flujo de conexión end-to-end
