@@ -1,0 +1,106 @@
+MAIN
+enable
+configure terminal
+hostname Switch0
+
+! Configuración VTP
+vtp domain FIUSAC
+vtp mode server
+
+! Creación de VLANs
+vlan 10
+ name ADMIN
+vlan 20
+ name MERCA
+vlan 30
+ name VENTAS
+exit
+
+! Puertos Troncales Gigabit (hacia ADMIN y MERCA)
+interface range GigabitEthernet 0/1 - 2
+ switchport mode trunk
+ switchport trunk allowed vlan all
+ no shutdown
+exit
+
+! Puerto Troncal FastEthernet (hacia VENTAS)
+interface FastEthernet 0/24
+ switchport mode trunk
+ switchport trunk allowed vlan all
+ no shutdown
+exit
+
+end
+write memory
+
+ADMIN
+enable
+configure terminal
+hostname ADMIN
+
+vtp domain FIUSAC
+vtp mode client
+
+interface GigabitEthernet 0/1
+ switchport mode trunk
+ switchport trunk allowed vlan all
+ no shutdown
+exit
+
+interface range FastEthernet 0/1 - 2
+ switchport mode access
+ switchport access vlan 10
+ no shutdown
+exit
+
+end
+write memory
+
+MERCAenable
+configure terminal
+hostname MERCA
+
+vtp domain FIUSAC
+vtp mode client
+
+interface GigabitEthernet 0/1
+ switchport mode trunk
+ switchport trunk allowed vlan all
+ no shutdown
+exit
+
+interface range FastEthernet 0/1 - 2
+ switchport mode access
+ switchport access vlan 20
+ no shutdown
+exit
+
+end
+write memory
+
+VENTASenable
+configure terminal
+hostname VENTAS
+
+vtp domain FIUSAC
+vtp mode transparent
+
+! Al estar en transparente, creamos la VLAN 30 localmente
+vlan 30
+ name VENTAS
+exit
+
+interface GigabitEthernet 0/1
+ switchport mode trunk
+ switchport trunk allowed vlan all
+ no shutdown
+exit
+
+interface range FastEthernet 0/1 - 2
+ switchport mode access
+ switchport access vlan 30
+ no shutdown
+exit
+
+end
+write memory
