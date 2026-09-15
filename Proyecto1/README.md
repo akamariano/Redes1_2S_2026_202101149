@@ -435,18 +435,18 @@ No se configuró puerta de enlace en ningún dispositivo, ya que la topología e
 
 ## 10. Dominios de colisión
 
-_Pendiente de completar con el conteo exacto de puertos activos por switch, verificado con `show interfaces status` en cada dispositivo. Cada puerto activo de un switch constituye su propio dominio de colisión, salvo el segmento Legacy de Producción, donde el Hub agrupa a todos sus dispositivos conectados en un único dominio de colisión compartido._
+Conteo derivado directamente de los puertos activos configurados en cada switch (sección 4), pendiente de verificación final con `show interfaces status` en el dispositivo real. Cada puerto activo de un switch constituye su propio dominio de colisión, salvo el segmento Legacy de Producción, donde el Hub agrupa a todos sus dispositivos conectados en un único dominio de colisión compartido.
 
 | Switch o segmento | Número de dominios de colisión que genera | Detalle |
 | :--- | :--- | :--- |
-| SW-CORE | | Un dominio por cada puerto activo (servidores y enlaces troncales) |
-| SW-ID-1 | | |
-| SW-ID-2 | | |
-| SW-ID-3 | | |
-| SW-CORP-DIST | | |
-| SW-ALA-A | | |
-| SW-ALA-B | | |
-| SW-PROD-ACCESO | | Puertos activos hacia el Core y hacia el Hub |
+| SW-CORE | 10 | Tres EtherChannel de dos puertos cada uno hacia SW-ID-1, SW-CORP-DIST y SW-PROD-ACCESO (6 puertos) más los cuatro puertos de acceso de la granja de servidores (Fa0/7-10) |
+| SW-ID-1 | 10 | Tres EtherChannel de dos puertos cada uno hacia SW-CORE, SW-ID-2 y SW-ID-3 (6 puertos) más los cuatro puertos de acceso de estaciones de trabajo (Fa0/1-3 y Fa0/10) |
+| SW-ID-2 | 7 | Dos EtherChannel de dos puertos cada uno hacia SW-ID-1 y SW-ID-3 (4 puertos) más los tres puertos de acceso de estaciones de trabajo (Fa0/1-3) |
+| SW-ID-3 | 6 | Dos EtherChannel de dos puertos cada uno hacia SW-ID-2 y SW-ID-1 (4 puertos) más los dos puertos de acceso de estaciones de trabajo (Fa0/1-2) |
+| SW-CORP-DIST | 6 | Tres EtherChannel de dos puertos cada uno hacia SW-CORE, SW-ALA-A y SW-ALA-B |
+| SW-ALA-A | 7 | Dos EtherChannel de dos puertos cada uno hacia SW-ALA-B y SW-CORP-DIST (4 puertos) más los tres puertos de acceso de Gerencia (Fa0/1-3) |
+| SW-ALA-B | 7 | Dos EtherChannel de dos puertos cada uno hacia SW-ALA-A y SW-CORP-DIST (4 puertos) más el puerto del Access Point (Fa0/1) y los dos puertos de acceso de Gerencia (Fa0/2-3) |
+| SW-PROD-ACCESO | 3 | Un EtherChannel de dos puertos hacia SW-CORE (Fa0/2-3) más el puerto de acceso hacia el Hub (Fa0/1) |
 | Segmento Legacy (Hub0) | 1 (compartido) | Todas las PCs conectadas al Hub comparten un único dominio de colisión, tal como exige el enunciado; el switch de acceso solo contiene y aísla ese dominio del resto de la red, sin eliminarlo |
 
 ## 11. Dominios de broadcast
@@ -488,17 +488,17 @@ Salida de `show spanning-tree`, `show etherchannel summary` y `show interfaces t
 
 ## 14. Presupuesto estimado
 
-_Pendiente de completar con precios de referencia de equipos físicos simulados._
+Precios de referencia cotizados en tiendas guatemaltecas en línea (septiembre 2026), usando en cada renglón la opción más económica encontrada. El Catalyst 2960-24TT está descontinuado y ya no se comercializa nuevo en Guatemala, por lo que se cotizó su reemplazo funcional directo de Cisco, el SG110-24-NA (switch de escritorio de 24 puertos Gigabit no administrable). De igual forma, el hub de repetición pura (Capa 1) ya no se fabrica ni se vende comercialmente; se cotizó el switch no administrable de 8 puertos más económico disponible como equivalente práctico para el segmento Legacy. No se cotizaron módulos ni cableado de fibra óptica porque ningún enlace del diseño (sección 5) los requiere, todos los enlaces del campus son de cobre.
 
-| Equipo | Cantidad | Precio unitario estimado | Subtotal |
-| :--- | :--- | :--- | :--- |
-| Switch Cisco Catalyst 2960-24TT | 8 | | |
-| Hub de 4 u 8 puertos | 1 | | |
-| Access Point | 1 | | |
-| Módulos de fibra óptica (si se justifican en algún enlace) | | | |
-| Cableado UTP Cat5e/Cat6 | | | |
-| Cableado de fibra óptica (si aplica) | | | |
-| **Total** | | | |
+| Equipo | Cantidad | Precio unitario estimado | Subtotal | Fuente |
+| :--- | :--- | :--- | :--- | :--- |
+| Switch Cisco Catalyst 2960-24TT (reemplazo: Cisco SG110-24-NA, 24 puertos Gigabit no administrable) | 8 | Q2,990.00 | Q23,920.00 | [camarasdeseguridad.com.gt](https://camarasdeseguridad.com.gt/brand/36-cisco-systems) |
+| Hub de 4 u 8 puertos (equivalente: switch no administrable 8 puertos Fast Ethernet) | 1 | Q99.00 | Q99.00 | [kemik.gt](https://www.kemik.gt/switch-fast-ethernet-de-8-puertos) |
+| Access Point (TP-Link TL-WA701ND) | 1 | Q204.00 | Q204.00 | [kemik.gt](https://www.kemik.gt/access-point-tp-link-inalambrico-tl-wa701nd) |
+| Módulos de fibra óptica | 0 | No aplica | Q0.00 | Ningún enlace del diseño usa fibra (sección 5) |
+| Cableado UTP Cat6, caja de 305 m (LANCABHD, interior) | 1 | Q469.00 | Q469.00 | [pacifiko.com](https://www.pacifiko.com/compras-en-linea/cable-utp-categoria-6-e-interior-4-pares-caja-305mts-blanco-lancabhd) |
+| Cableado de fibra óptica | 0 | No aplica | Q0.00 | Ningún enlace del diseño usa fibra (sección 5) |
+| **Total** | | | **Q24,692.00** | |
 
 ## 15. Incidencias resueltas durante la implementación
 
