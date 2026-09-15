@@ -1,0 +1,9 @@
+! SW-ID-1
+banner motd #Acceso Restringido - TechPark_202101149#
+
+! SW-CORP-DIST
+banner motd #Acceso Restringido - TechPark_202101149#
+
+! SW-CORE (puertos de acceso de la granja de servidores, Fa0/7 - 10)
+interface range fastEthernet0/7 - 10
+no cdp enable

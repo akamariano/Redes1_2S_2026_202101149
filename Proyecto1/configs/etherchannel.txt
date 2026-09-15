@@ -1,0 +1,162 @@
+! Enlace Core - I+D (Po1)
+! SW-CORE
+interface range fastEthernet0/11 - 12
+switchport trunk native vlan 99
+switchport mode trunk
+channel-protocol pagp
+channel-group 1 mode desirable
+exit
+
+! SW-ID-1
+interface range fastEthernet0/6 - 7
+switchport trunk native vlan 99
+switchport mode trunk
+channel-protocol pagp
+channel-group 1 mode auto
+exit
+
+! Enlace Core - Corporativo (Po2 en Core, Po1 en Corp-Dist)
+! SW-CORE
+interface range fastEthernet0/13 - 14
+switchport trunk native vlan 99
+switchport mode trunk
+channel-protocol pagp
+channel-group 2 mode desirable
+exit
+
+! SW-CORP-DIST
+interface range fastEthernet0/7 - 8
+switchport trunk native vlan 99
+switchport mode trunk
+channel-protocol pagp
+channel-group 1 mode auto
+exit
+
+! Enlace Core - Producción (Po3 en Core, Po1 en Prod-Acceso)
+! SW-CORE
+interface range fastEthernet0/5 - 6
+switchport trunk native vlan 99
+switchport mode trunk
+channel-protocol pagp
+channel-group 3 mode desirable
+exit
+
+! SW-PROD-ACCESO
+interface range fastEthernet0/2 - 3
+switchport trunk native vlan 99
+switchport mode trunk
+channel-protocol pagp
+channel-group 1 mode auto
+exit
+
+! Enlace I+D 1 a I+D 2 (Po2 en ID-1, Po1 en ID-2)
+! SW-ID-1
+interface range fastEthernet0/4 - 5
+switchport trunk native vlan 99
+switchport mode trunk
+channel-protocol pagp
+channel-group 2 mode desirable
+exit
+
+! SW-ID-2
+interface range fastEthernet0/6 - 7
+switchport trunk native vlan 99
+switchport mode trunk
+channel-protocol pagp
+channel-group 1 mode auto
+exit
+
+! Enlace I+D 1 a I+D 3 (Po3 en ID-1, Po2 en ID-3)
+! SW-ID-1
+interface range fastEthernet0/8 - 9
+switchport trunk native vlan 99
+switchport mode trunk
+channel-protocol pagp
+channel-group 3 mode desirable
+exit
+
+! SW-ID-3
+interface range fastEthernet0/3 - 4
+switchport trunk native vlan 99
+switchport mode trunk
+channel-protocol pagp
+channel-group 2 mode auto
+exit
+
+! Enlace I+D 2 a I+D 3 (Po2 en ID-2, Po1 en ID-3, sobre puertos Gigabit)
+! SW-ID-2
+interface range fastEthernet0/4 - 5
+switchport trunk native vlan 99
+switchport mode trunk
+channel-protocol pagp
+channel-group 2 mode desirable
+exit
+
+! SW-ID-3
+interface range gigabitEthernet0/1 - 2
+switchport trunk native vlan 99
+switchport mode trunk
+channel-protocol pagp
+channel-group 1 mode auto
+exit
+
+! Enlace Corp-Dist a Ala-A (Po2 en Corp-Dist, Po2 en Ala-A)
+! SW-CORP-DIST
+interface fastEthernet0/2
+switchport trunk native vlan 99
+switchport mode trunk
+channel-protocol pagp
+channel-group 2 mode desirable
+interface fastEthernet0/5
+switchport trunk native vlan 99
+switchport mode trunk
+channel-protocol pagp
+channel-group 2 mode desirable
+exit
+
+! SW-ALA-A
+interface range fastEthernet0/4,fastEthernet0/6
+switchport trunk native vlan 99
+switchport mode trunk
+channel-protocol pagp
+channel-group 2 mode auto
+exit
+
+! Enlace Corp-Dist a Ala-B (Po3 en Corp-Dist, Po2 en Ala-B)
+! SW-CORP-DIST
+interface fastEthernet0/3
+switchport trunk native vlan 99
+switchport mode trunk
+channel-protocol pagp
+channel-group 3 mode desirable
+interface fastEthernet0/6
+switchport trunk native vlan 99
+switchport mode trunk
+channel-protocol pagp
+channel-group 3 mode desirable
+exit
+
+! SW-ALA-B
+interface range fastEthernet0/4,fastEthernet0/6
+switchport trunk native vlan 99
+switchport mode trunk
+channel-protocol pagp
+channel-group 2 mode auto
+exit
+
+! Enlace Ala-A a Ala-B (Po1 en ambos)
+! SW-ALA-A
+interface range fastEthernet0/5,fastEthernet0/7
+switchport trunk native vlan 99
+switchport mode trunk
+channel-protocol pagp
+channel-group 1 mode desirable
+exit
+
+! SW-ALA-B
+interface range fastEthernet0/5,fastEthernet0/7
+switchport trunk native vlan 99
+switchport mode trunk
+channel-protocol pagp
+channel-group 1 mode auto
+exit

@@ -1,0 +1,12 @@
+! SW-CORE
+vlan 19
+name GERENCIA
+vlan 29
+name INVESTIGACION
+vlan 39
+name PRODUCCION
+vlan 49
+name SERVIDORES
+vlan 59
+name VISITANTES
+exit

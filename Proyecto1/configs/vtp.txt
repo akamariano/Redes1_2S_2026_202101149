@@ -1,0 +1,31 @@
+! SW-CORE (Server)
+vtp domain Smart_4
+vtp password proyecto12S2026
+
+! SW-ID-1 (Client)
+vtp mode client
+vtp password proyecto12S2026
+
+! SW-ID-2 (Client)
+vtp mode client
+vtp password proyecto12S2026
+
+! SW-ID-3 (Client)
+vtp mode client
+vtp password proyecto12S2026
+
+! SW-CORP-DIST (Client)
+vtp mode client
+vtp password proyecto12S2026
+
+! SW-ALA-A (Client)
+vtp mode client
+vtp password proyecto12S2026
+
+! SW-ALA-B (Client)
+vtp mode client
+vtp password proyecto12S2026
+
+! SW-PROD-ACCESO (Client)
+vtp mode client
+vtp password proyecto12S2026

@@ -1,0 +1,15 @@
+! SW-CORE
+spanning-tree mode rapid-pvst
+spanning-tree vlan 19,49,99 priority 24576
+
+! SW-ID-1
+spanning-tree mode rapid-pvst
+spanning-tree vlan 29 priority 24576
+
+! SW-CORP-DIST
+spanning-tree mode rapid-pvst
+spanning-tree vlan 59 priority 24576
+
+! SW-PROD-ACCESO
+spanning-tree mode rapid-pvst
+spanning-tree vlan 39 priority 24576
